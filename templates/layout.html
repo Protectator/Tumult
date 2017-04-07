@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Probeurre : ">
+    <meta content="Tumult" property="og:site_name"/>
+    <meta content="Tumult" property="og:title"/>
+    <meta content="Tumult shows statistics about your Discord servers" property="og:description"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha256-mIfhv/h3MLq3WSiSlduuZO3saRNzzuf1LK8w3z3l3JY=" crossorigin="anonymous">
+    <link rel="icon" href="/static/img/favicon.png">
+    <link rel="stylesheet" href="/static/style.css">
+    <title>Tumult</title>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-top navbar-dark bg-inverse">
+        <div class="container">
+            <a class="navbar-brand" href="/">Tumult</a>
+            <ul class="nav navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+<main class="container">
+    {% if contentTemplate %}
+        {% include contentTemplate %}
+    {% else %}
+        {{ content }}
+    {% endif %}
+</main>
+<footer class="text-muted">
+    <div class="container">
+        Tumult, by Kewin Dousse & Vincent Robatel
+    </div>
+</footer>
+</body>
+</html>
