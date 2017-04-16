@@ -9,7 +9,7 @@ from requests_oauthlib import OAuth2Session
 
 OAUTH2_CLIENT_ID     = '299915176260403200'
 OAUTH2_CLIENT_SECRET = 'du0WfmpyPjIZlDM-DqjM9eJdPL2Igcti'
-OAUTH2_SCOPE         = ['identify', 'email', 'guilds', 'messages.read']
+OAUTH2_SCOPE         = ['identify', 'guilds', 'messages.read']
 API_BASE_URL         = 'https://discordapp.com/api'
 OAUTH2_REDIRECT_URI  = 'http://localhost:42424/oauth'
 
@@ -68,10 +68,13 @@ def oauth():
 
 @app.route("/me")
 def me():
-    discord = make_session(token=session.get('oauth2_token'))
-    user = discord.get(API_BASE_URL + '/users/@me').json()
-    guilds = discord.get(API_BASE_URL + '/users/@me/guilds').json()
-    return render_template("layout.html", contentTemplate="index.html", servers=guilds)
+    try:
+        discord = make_session(token=session.get('oauth2_token'))
+        user = discord.get(API_BASE_URL + '/users/@me').json()
+        guilds = discord.get(API_BASE_URL + '/users/@me/guilds').json()
+        return render_template("layout.html", contentTemplate="servers.html", user=user, servers=guilds)
+    except Exception as e:
+        return unauthorized(e)
 
 
 @app.errorhandler(403)

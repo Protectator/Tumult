@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Probeurre : ">
+    <meta name="description" content="Tumult">
     <meta content="Tumult" property="og:site_name"/>
     <meta content="Tumult" property="og:title"/>
     <meta content="Tumult shows statistics about your Discord servers" property="og:description"/>
@@ -15,12 +15,17 @@
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-top navbar-dark bg-inverse">
+    <nav class="navbar navbar-top navbar-dark bg-inverse navbar-inverse">
         <div class="container">
             <a class="navbar-brand" href="/">Tumult</a>
-            <ul class="nav navbar-nav">
+            <ul class="nav navbar-nav mr-auto">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
             </ul>
+            <span class="navbar-text">
+                {% if user %}
+                    {{ user.username }}
+                {% endif %}
+            </span>
         </div>
     </nav>
 </header>

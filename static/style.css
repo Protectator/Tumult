@@ -1,0 +1,9 @@
+.navbar-text {
+    color: lightgrey;
+    float: right;
+}
+
+.servers-list a img {
+    width: 30px;
+    height: 30px;
+}
