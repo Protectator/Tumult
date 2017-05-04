@@ -1,11 +1,8 @@
 <h2>Your servers</h2>
-Select a server
 <div class="list-group servers-list">
     {% for server in servers %}
     <a href="/server/{{ server.id }}" class="list-group-item list-group-item-action">
-        <img src="https://cdn.discordapp.com/icons/{{ server.id }}/{{ server.icon }}.png"/>
-        {{ server.name }}
-        <p class="mb-1">{{ server.id }}</p>
+        <h4><img src="https://cdn.discordapp.com/icons/{{ server.id }}/{{ server.icon }}.png" class="rounded"/> {{ server.name }}</h4><!-- Server ID : {{ server.id }} -->
     </a>
     {% endfor %}
 </div>

@@ -7,14 +7,17 @@ import os
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from requests_oauthlib import OAuth2Session
 
-OAUTH2_CLIENT_ID     = '299915176260403200'
+OAUTH2_CLIENT_ID = '299915176260403200'
 OAUTH2_CLIENT_SECRET = 'du0WfmpyPjIZlDM-DqjM9eJdPL2Igcti'
-OAUTH2_SCOPE         = ['identify', 'guilds', 'messages.read']
-API_BASE_URL         = 'https://discordapp.com/api'
-OAUTH2_REDIRECT_URI  = 'http://localhost:42424/oauth'
+OAUTH2_SCOPE = ['identify', 'guilds', 'messages.read']
+API_BASE_URL = 'https://discordapp.com/api'
+OAUTH2_REDIRECT_URI = 'http://localhost:42424/oauth'
 
-AUTHORIZATION_URL    = API_BASE_URL + '/oauth2/authorize'
-TOKEN_URL            = API_BASE_URL + '/oauth2/token'
+AUTHORIZATION_URL = API_BASE_URL + '/oauth2/authorize'
+TOKEN_URL = API_BASE_URL + '/oauth2/token'
+
+cache = {}
+cache['user'] = {}
 
 if 'http://' in OAUTH2_REDIRECT_URI:
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -38,9 +41,11 @@ def make_session(token=None, state=None):
         auto_refresh_url=TOKEN_URL,
         token_updater=token_updater)
 
+
 app = Flask(__name__)
 app.debug = True
 app.config['SECRET_KEY'] = OAUTH2_CLIENT_SECRET
+
 
 # Routes
 
@@ -63,16 +68,30 @@ def oauth():
         authorization_response=request.url.strip(),
     )
     session['oauth2_token'] = token
+    cache['user'][token['access_token']] = discord.get(API_BASE_URL + '/users/@me').json()
     return redirect(url_for('.me'))
 
 
 @app.route("/me")
 def me():
     try:
-        discord = make_session(token=session.get('oauth2_token'))
-        user = discord.get(API_BASE_URL + '/users/@me').json()
+        token = session.get('oauth2_token')
+        discord = make_session(token=token)
         guilds = discord.get(API_BASE_URL + '/users/@me/guilds').json()
+        user = cache['user'][token['access_token']]
         return render_template("layout.html", contentTemplate="servers.html", user=user, servers=guilds)
+    except Exception as e:
+        return unauthorized(e)
+
+
+@app.route("/server/<guildId>")
+def server(guildId):
+    try:
+        token = session.get('oauth2_token')
+        discord = make_session(token=token)
+        user = cache['user'][token['access_token']]
+        guild = discord.get(API_BASE_URL + '/guilds/' + guildId).json()
+        return render_template("layout.html", contentTemplate="server.html", user=user, server=guild)
     except Exception as e:
         return unauthorized(e)
 
@@ -81,13 +100,16 @@ def me():
 def unauthorized(e):
     return render_template("layout.html", content="Error 403"), 403
 
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("layout.html", content="Error 404"), 404
 
+
 @app.errorhandler(500)
 def internal_server_error(e):
     return render_template("layout.html", content="Error 500"), 500
+
 
 def run():
     app.run(host='127.0.0.1', port=42424)

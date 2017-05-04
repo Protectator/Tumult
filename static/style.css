@@ -6,4 +6,15 @@
 .servers-list a img {
     width: 30px;
     height: 30px;
+    vertical-align: text-bottom;
+}
+
+.servers-list a h4 {
+    margin-bottom: 0;
+}
+
+body>.container {
+    margin-top: 0;
+    padding-top: 16px;
+    padding-bottom: 24px;
 }
