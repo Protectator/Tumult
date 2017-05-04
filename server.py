@@ -4,20 +4,22 @@
 This file is part of Tumult.
 """
 import os
+import requests
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from requests_oauthlib import OAuth2Session
 
 OAUTH2_CLIENT_ID = '299915176260403200'
 OAUTH2_CLIENT_SECRET = 'du0WfmpyPjIZlDM-DqjM9eJdPL2Igcti'
-OAUTH2_SCOPE = ['identify', 'guilds', 'messages.read']
+OAUTH2_SCOPE = ['identify', 'guilds']
 API_BASE_URL = 'https://discordapp.com/api'
-OAUTH2_REDIRECT_URI = 'http://localhost:42424/oauth'
+OAUTH2_REDIRECT_URI = 'http://localhost:42424/auth'
 
 AUTHORIZATION_URL = API_BASE_URL + '/oauth2/authorize'
 TOKEN_URL = API_BASE_URL + '/oauth2/token'
 
 cache = {}
 cache['user'] = {}
+cache['usertoken'] = {}
 
 if 'http://' in OAUTH2_REDIRECT_URI:
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -57,8 +59,8 @@ def root():
     return redirect(authorization_url)
 
 
-@app.route("/oauth")
-def oauth():
+@app.route("/auth")
+def auth():
     if request.values.get('error'):
         return request.values['error']
     discord = make_session(state=session.get('oauth2_state'))
@@ -69,7 +71,19 @@ def oauth():
     )
     session['oauth2_token'] = token
     cache['user'][token['access_token']] = discord.get(API_BASE_URL + '/users/@me').json()
-    return redirect(url_for('.me'))
+    user = cache['user'][token['access_token']]
+    return render_template("layout.html", contentTemplate="usertoken.html", user=user)
+
+
+@app.route("/usertoken", methods=['POST'])
+def usertoken():
+    try:
+        token = session.get('oauth2_token')
+        usertoken = request.form['usertoken'].strip('"')
+        cache['usertoken'][token['access_token']] = usertoken
+        return redirect('/me')
+    except Exception as e:
+        return unauthorized(e)
 
 
 @app.route("/me")
@@ -88,9 +102,10 @@ def me():
 def server(guildId):
     try:
         token = session.get('oauth2_token')
-        discord = make_session(token=token)
+        usertoken = cache['usertoken'][token['access_token']]
+        headers = {'authorization': usertoken}
+        guild = requests.get(API_BASE_URL + '/guilds/' + guildId, headers=headers).json()
         user = cache['user'][token['access_token']]
-        guild = discord.get(API_BASE_URL + '/guilds/' + guildId).json()
         return render_template("layout.html", contentTemplate="server.html", user=user, server=guild)
     except Exception as e:
         return unauthorized(e)

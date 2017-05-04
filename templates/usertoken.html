@@ -1,0 +1,11 @@
+<h2>Your user token</h2>
+<p>We now need your user token in order to read messages of your channels. The token will only be used to read messages
+    and is destroyed immediately once the application is shut down.</p>
+<p>Please enter your user token here :</p>
+<form action="/usertoken" method="post">
+    <div class="form-group">
+        <label for="usertoken">Token</label>
+        <input type="text" class="form-control" id="usertoken" name="usertoken" placeholder="Paste your token here">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
