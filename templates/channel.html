@@ -15,7 +15,11 @@
 <ul class="list-group servers-list">
     {% for message in messages %}
     <li class="list-group-item">
-        <p>{{ message.content }}</p><!-- Message ID : {{ channel.id }} -->
+        <div class="d-flex w-100 justify-content-between">
+            <small>{{ message.author.username }}</small>
+            <small>{{ message.timestamp }}</small>
+        </div>
+        <p class="mb-1">{{ message.content }}</p> <!-- Message ID : {{ channel.id }} -->
     </li>
     {% endfor %}
 </ul>

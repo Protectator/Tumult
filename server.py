@@ -4,7 +4,10 @@
 This file is part of Tumult.
 """
 import os
+
+import datetime
 import requests
+import time
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from requests_oauthlib import OAuth2Session
 
@@ -54,6 +57,19 @@ app.config['SECRET_KEY'] = OAUTH2_CLIENT_SECRET
 
 @app.route("/")
 def root():
+    token = session.get('oauth2_token')
+    if token:
+        if token['access_token'] in cache['user']:
+            user = cache['user'][token['access_token']]
+        else:
+            user = None
+    else:
+        user = None
+    return render_template("layout.html", contentTemplate="index.html", user=user)
+
+
+@app.route("/discordauth")
+def discordauth():
     discord = make_session()
     authorization_url, state = discord.authorization_url(AUTHORIZATION_URL)
     session['oauth2_state'] = state

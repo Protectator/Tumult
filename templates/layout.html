@@ -8,24 +8,32 @@
     <meta content="Tumult" property="og:site_name"/>
     <meta content="Tumult" property="og:title"/>
     <meta content="Tumult shows statistics about your Discord servers" property="og:description"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha256-mIfhv/h3MLq3WSiSlduuZO3saRNzzuf1LK8w3z3l3JY=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
     <link rel="icon" href="/static/img/favicon.png">
     <link rel="stylesheet" href="/static/style.css">
     <title>Tumult</title>
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-top navbar-dark bg-inverse navbar-inverse">
+    <nav class="navbar navbar-top navbar-toggleable-md  navbar-dark bg-inverse navbar-inverse bg-faded">
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
         <div class="container">
             <a class="navbar-brand" href="/">Tumult</a>
-            <ul class="nav navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link" href="/me">Home</a></li>
-            </ul>
-            <span class="navbar-text">
-                {% if user %}
-                    {{ user.username }}
-                {% endif %}
-            </span>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/me">Home</a>
+                    </li>
+                </ul>
+                <span class="navbar-text">
+                    {% if user %}
+                        {{ user.username }}
+                    {% endif %}
+                </span>
+            </div>
         </div>
     </nav>
 </header>
