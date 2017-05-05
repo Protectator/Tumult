@@ -8,7 +8,7 @@ import os
 import datetime
 import requests
 import time
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, abort
 from requests_oauthlib import OAuth2Session
 
 OAUTH2_CLIENT_ID = '299915176260403200'
@@ -55,14 +55,14 @@ app.config['SECRET_KEY'] = OAUTH2_CLIENT_SECRET
 
 # Routes
 
-@app.route("/")
+@app.route("/") # Index
 def root():
     token = session.get('oauth2_token')
-    user = check_user(token, cache)
+    (user, usertoken) = get_user_cache(token, cache)
     return render_template("layout.html", contentTemplate="index.html", user=user)
 
 
-@app.route("/discordauth")
+@app.route("/discordauth") # Redirection to Discord authorization page
 def discordauth():
     discord = make_session()
     authorization_url, state = discord.authorization_url(AUTHORIZATION_URL)
@@ -70,7 +70,7 @@ def discordauth():
     return redirect(authorization_url)
 
 
-@app.route("/auth")
+@app.route("/auth") # Callback from Discord auth
 def auth():
     if request.values.get('error'):
         return request.values['error']
@@ -82,8 +82,7 @@ def auth():
     )
     session['oauth2_token'] = token
     cache['user'][token['access_token']] = discord.get(API_BASE_URL + '/users/@me').json()
-    user = cache['user'][token['access_token']]
-    return render_template("layout.html", contentTemplate="usertoken.html", user=user)
+    return render_template("layout.html", contentTemplate="usertoken.html")
 
 
 @app.route("/usertoken", methods=['POST'])
@@ -99,45 +98,65 @@ def usertoken():
 
 @app.route("/me")
 def me():
+    # Auth and session
     token = session.get('oauth2_token')
+    (user, usertoken) = get_user_cache(token, cache)
+    check_auth(user, usertoken)
+
+    # API calls
     discord = make_session(token=token)
     guilds = discord.get(API_BASE_URL + '/users/@me/guilds').json()
-    user = cache['user'][token['access_token']]
+
+    # Render
     return render_template("layout.html", contentTemplate="servers.html", user=user, servers=guilds)
 
 
 @app.route("/server/<guildId>")
 def server(guildId):
+    # Auth and session
     token = session.get('oauth2_token')
-    usertoken = cache['usertoken'][token['access_token']]
+    (user, usertoken) = get_user_cache(token, cache)
+    check_auth(user, usertoken)
+
+    # API calls
     headers = {'authorization': usertoken}
-    guild = requests.get(API_BASE_URL + '/guilds/' + guildId, headers=headers).json()
+    guild    = requests.get(API_BASE_URL + '/guilds/' + guildId, headers=headers).json()
     channels = requests.get(API_BASE_URL + '/guilds/' + guildId + '/channels', headers=headers).json()
 
+    # Cache
     cache['guilds'][guildId] = guild
 
-    user = cache['user'][token['access_token']]
-
+    # Render
     return render_template("layout.html", contentTemplate="server.html", user=user, server=guild, channels=channels)
 
 
 @app.route("/channel/<channelId>")
 def channel(channelId):
+    # Auth and session
     token = session.get('oauth2_token')
-    usertoken = cache['usertoken'][token['access_token']]
+    (user, usertoken) = get_user_cache(token, cache)
+    check_auth(user, usertoken)
+
+    # API calls
     headers = {'authorization': usertoken}
     channel = requests.get(API_BASE_URL + '/channels/' + channelId, headers=headers).json()
     params = {'around': channel['last_message_id']}
     messages = requests.get(API_BASE_URL + '/channels/' + channelId + '/messages', headers=headers, params=params).json()
-    user = cache['user'][token['access_token']]
 
+    # Cache
     guild = cache['guilds'][channel['guild_id']]
 
+    # Render
     return render_template("layout.html", contentTemplate="channel.html", user=user, channel=channel, server=guild, messages=messages)
 
 
-@app.errorhandler(403)
+@app.errorhandler(401)
 def unauthorized(e):
+    return render_template("layout.html", content="Error 401", warningMessage=e.description), 401
+
+
+@app.errorhandler(403)
+def forbidden(e):
     return render_template("layout.html", content="Error 403"), 403
 
 
@@ -168,14 +187,24 @@ def utility_processor():
     return dict(serverimg=serverimg, avatarimg=avatarimg)
 
 
-def check_user(token, cache):
+def get_user_cache(token, cache):
     if token:
         if token['access_token'] in cache['user']:
-            return cache['user'][token['access_token']]
+            session_token = cache['user'][token['access_token']]
+            if token['access_token'] in cache['usertoken']:
+                return (session_token, cache['usertoken'][token['access_token']])
+            return (session_token, None)
         else:
-            return None
+            return (None, None)
     else:
-        return None
+        return (None, None)
+
+
+def check_auth(user, usertoken):
+    if user is None:
+        abort(401, "Missing user")
+    if usertoken is None:
+        abort(401, "Missing user token")
 
 
 def run():
