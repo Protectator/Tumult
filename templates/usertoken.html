@@ -1,11 +1,20 @@
 <h2>Your user token</h2>
 <p>We now need your user token in order to read messages of your channels. The token will only be used to read messages
     and is destroyed immediately once the application is shut down.</p>
-<p>Please enter your user token here :</p>
+<p>
 <form action="/usertoken" method="post">
     <div class="form-group">
         <label for="usertoken">Token</label>
         <input type="text" class="form-control" id="usertoken" name="usertoken" placeholder="Paste your token here">
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+</form></p>
+<p>If you need help to retrieve your user token, here is how to do it :</p>
+<ol>
+    <li>Open <a href="https://discordapp.com">https://discordapp.com</a> and be sure you're logged in</li>
+    <li>While on the Discord page (not this one), open the Developer Tools tab using <kbd><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd></kbd></li>
+    <li>In the Developer Tools, open the "Application" Tab. Then under the "Storage" section, open the "Local Storage" drawer by clicking on the small arrow</li>
+    <li>Click on the "https://discordapp.com" line that appeared below. This should a list of Key - Value pairs.</li>
+    <li>Find the line with the "token" Key. Select its Value and copy it. (Should be a 60~62 characters string).</li>
+    <li>Paste it in the above field, and then click Submit.</li>
+</ol>

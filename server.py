@@ -20,6 +20,7 @@ TOKEN_URL = API_BASE_URL + '/oauth2/token'
 cache = {}
 cache['user'] = {}
 cache['usertoken'] = {}
+cache['guilds'] = {}
 
 if 'http://' in OAUTH2_REDIRECT_URI:
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -88,27 +89,41 @@ def usertoken():
 
 @app.route("/me")
 def me():
-    try:
-        token = session.get('oauth2_token')
-        discord = make_session(token=token)
-        guilds = discord.get(API_BASE_URL + '/users/@me/guilds').json()
-        user = cache['user'][token['access_token']]
-        return render_template("layout.html", contentTemplate="servers.html", user=user, servers=guilds)
-    except Exception as e:
-        return unauthorized(e)
+    token = session.get('oauth2_token')
+    discord = make_session(token=token)
+    guilds = discord.get(API_BASE_URL + '/users/@me/guilds').json()
+    user = cache['user'][token['access_token']]
+    return render_template("layout.html", contentTemplate="servers.html", user=user, servers=guilds)
 
 
 @app.route("/server/<guildId>")
 def server(guildId):
-    try:
-        token = session.get('oauth2_token')
-        usertoken = cache['usertoken'][token['access_token']]
-        headers = {'authorization': usertoken}
-        guild = requests.get(API_BASE_URL + '/guilds/' + guildId, headers=headers).json()
-        user = cache['user'][token['access_token']]
-        return render_template("layout.html", contentTemplate="server.html", user=user, server=guild)
-    except Exception as e:
-        return unauthorized(e)
+    token = session.get('oauth2_token')
+    usertoken = cache['usertoken'][token['access_token']]
+    headers = {'authorization': usertoken}
+    guild = requests.get(API_BASE_URL + '/guilds/' + guildId, headers=headers).json()
+    channels = requests.get(API_BASE_URL + '/guilds/' + guildId + '/channels', headers=headers).json()
+
+    cache['guilds'][guildId] = guild
+
+    user = cache['user'][token['access_token']]
+
+    return render_template("layout.html", contentTemplate="server.html", user=user, server=guild, channels=channels)
+
+
+@app.route("/channel/<channelId>")
+def channel(channelId):
+    token = session.get('oauth2_token')
+    usertoken = cache['usertoken'][token['access_token']]
+    headers = {'authorization': usertoken}
+    channel = requests.get(API_BASE_URL + '/channels/' + channelId, headers=headers).json()
+    params = {'around': channel['last_message_id']}
+    messages = requests.get(API_BASE_URL + '/channels/' + channelId + '/messages', headers=headers, params=params).json()
+    user = cache['user'][token['access_token']]
+
+    guild = cache['guilds'][channel['guild_id']]
+
+    return render_template("layout.html", contentTemplate="channel.html", user=user, channel=channel, server=guild, messages=messages)
 
 
 @app.errorhandler(403)
