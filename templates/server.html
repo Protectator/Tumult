@@ -1,4 +1,4 @@
-<h2><img src="https://cdn.discordapp.com/icons/{{ server.id }}/{{ server.icon }}.png" class="rounded small"/>{{ server.name }}</h2>
+<h2><img src="{{ serverimg(server.id, server.icon) }}" class="rounded small"/>{{ server.name }}</h2>
 <div class="list-group servers-list">
     {% for channel in channels %}
         {% if channel.type == 'text' %}

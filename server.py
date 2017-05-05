@@ -58,13 +58,7 @@ app.config['SECRET_KEY'] = OAUTH2_CLIENT_SECRET
 @app.route("/")
 def root():
     token = session.get('oauth2_token')
-    if token:
-        if token['access_token'] in cache['user']:
-            user = cache['user'][token['access_token']]
-        else:
-            user = None
-    else:
-        user = None
+    user = check_user(token, cache)
     return render_template("layout.html", contentTemplate="index.html", user=user)
 
 
@@ -155,6 +149,33 @@ def page_not_found(e):
 @app.errorhandler(500)
 def internal_server_error(e):
     return render_template("layout.html", content="Error 500"), 500
+
+
+@app.context_processor
+def utility_processor():
+    def serverimg(server, hash):
+        if hash:
+            return 'https://cdn.discordapp.com/icons/' + server + '/' + hash + '.png'
+        else:
+            return '/static/discord_logo.png'
+
+    def avatarimg(id, avatar):
+        if avatar:
+            return 'https://cdn.discordapp.com/avatars/' + id + '/' + avatar + '.png'
+        else:
+            return 'https://cdn.discordapp.com/avatars/147045937754144768'
+
+    return dict(serverimg=serverimg, avatarimg=avatarimg)
+
+
+def check_user(token, cache):
+    if token:
+        if token['access_token'] in cache['user']:
+            return cache['user'][token['access_token']]
+        else:
+            return None
+    else:
+        return None
 
 
 def run():

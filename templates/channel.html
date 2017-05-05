@@ -1,16 +1,7 @@
-<h2><img src="https://cdn.discordapp.com/icons/{{ server.id }}/{{ server.icon }}.png" class="rounded small"/><a href="/server/{{ server.id }}">{{ server.name }}</a> <small>#{{ channel.name }}</small></h2>
+<h2><img src="{{ serverimg(server.id, server.icon) }}" class="rounded small"/><a href="/server/{{ server.id }}">{{ server.name }}</a> <small>#{{ channel.name }}</small></h2>
 {% if channel.topic %}
 <p>{{ channel.topic }}</p>
 {% endif %}
-<div class="list-group servers-list">
-    {% for channel in channels|sort(attribute='position') %}
-        {% if channel.topic %}
-        <a href="/channel/{{ channel.id }}" class="list-group-item list-group-item-action">
-            <h4><small>#</small>{{ channel.name }}</h4><!-- Channel ID : {{ channel.id }} -->
-        </a>
-        {% endif %}
-    {% endfor %}
-</div>
 
 <ul class="list-group servers-list">
     {% for message in messages %}
