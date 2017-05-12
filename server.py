@@ -150,6 +150,19 @@ def channel(channelId):
     # Render
     return render_template("layout.html", contentTemplate="channel.html", user=user, channel=channel, server=guild, messages=messages)
 
+@app.route("/server-info/<guildId>")
+def serverInfo(guildId):
+    # Auth and session
+    token = session.get('oauth2_token')
+    (user, usertoken) = get_user_cache(token, cache)
+    check_auth(user, usertoken)
+
+    guild = {}
+    data = {}
+
+    # Render
+    return render_template("layout.html", contentTemplate="server-info.html", user=user, server=guild, data=data)
+
 
 @app.route("/compute/<guildId>")
 def compute(guildId):
