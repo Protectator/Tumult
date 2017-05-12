@@ -164,13 +164,18 @@ def compute(guildId):
     mysqldb = MySQL(current_app.config['DB_HOST'], current_app.config['DB_USER'], current_app.config['DB_PASS'])
     mysqldb.connect()
     params = {}
+    headers = {'authorization': usertoken}
 
-    if way == 'after':
-        lastMessageId = mysqldb.getLastMessageId(channelId)['id']
-        params = {'after': int(lastMessageId), 'limit': 100}
+    lastMessageId = mysqldb.getLastMessageId(channelId)
+    if lastMessageId is None:
+        channel = requests.get(API_BASE_URL + '/channels/' + channelId, headers=headers).json()
+        params = {'around': int(channel['last_message_id']), 'limit': 100}
+    elif way == 'after':
+        lastMessageId = mysqldb.getLastMessageId(channelId)
+        params = {'after': int(lastMessageId['id']), 'limit': 100}
     elif way == 'before':
-        firstMessageId = mysqldb.getFirstMessageId(channelId)['id']
-        params = {'before': int(firstMessageId), 'limit': 100}
+        firstMessageId = mysqldb.getFirstMessageId(channelId)
+        params = {'before': int(firstMessageId['id']), 'limit': 100}
     else:
         abort(412, "Incorrect 'time' parameter.")
         return
@@ -194,7 +199,7 @@ def compute(guildId):
     # DB Fill
     returnValue = mysqldb.insertMessages(toInsert)
 
-    content = "From DB : " + returnValue + "<br>Got messages : <pre>" + messages + "</pre>"
+    content = "From DB : " + str(returnValue) + "<br>Got messages : <pre>" + str(messages) + "</pre>"
 
     # Render
     return render_template("layout.html", content="Successfully inserted messages : ")

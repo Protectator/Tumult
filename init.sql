@@ -8,11 +8,11 @@ CREATE TABLE `messages` (
   `channel_id` varchar(65) NOT NULL,
   `author_id` varchar(65) NOT NULL,
   `content` varchar(2000) NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `timestamp` timestamp NOT NULL,
   `author_username` varchar(40) NOT NULL,
   `author_discriminator` smallint(5) UNSIGNED NOT NULL,
   `avatar` varchar(65) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ALTER TABLE `messages`
   ADD PRIMARY KEY (`id`),

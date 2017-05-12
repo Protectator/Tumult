@@ -32,7 +32,8 @@ class MySQL:
 
     def insertMessages(self, messages):
         with self.tumult.cursor() as tumult:
-            return tumult.executemany(insertMessagesSQL, messages)
+            tumult.executemany(insertMessagesSQL, messages)
+        self.tumult.commit()
 
     def getLastMessageId(self, channelId):
         with self.tumult.cursor() as tumult:
