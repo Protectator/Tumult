@@ -8,7 +8,8 @@ import os
 import datetime
 import requests
 import time
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify, abort
+from mysql import MySQL
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, abort, current_app
 from requests_oauthlib import OAuth2Session
 
 OAUTH2_CLIENT_ID = '299915176260403200'
@@ -150,6 +151,56 @@ def channel(channelId):
     return render_template("layout.html", contentTemplate="channel.html", user=user, channel=channel, server=guild, messages=messages)
 
 
+@app.route("/compute/<guildId>")
+def compute(guildId):
+    # Auth and session
+    token = session.get('oauth2_token')
+    (user, usertoken) = get_user_cache(token, cache)
+    check_auth(user, usertoken)
+
+    # Logic
+    way = request.args.get('time')
+    channelId = request.args.get('channelId')
+    mysqldb = MySQL(current_app.config['DB_HOST'], current_app.config['DB_USER'], current_app.config['DB_PASS'])
+    mysqldb.connect()
+    params = {}
+
+    if way == 'after':
+        lastMessageId = mysqldb.getLastMessageId(channelId)['id']
+        params = {'after': int(lastMessageId), 'limit': 100}
+    elif way == 'before':
+        firstMessageId = mysqldb.getFirstMessageId(channelId)['id']
+        params = {'before': int(firstMessageId), 'limit': 100}
+    else:
+        abort(412, "Incorrect 'time' parameter.")
+        return
+
+    # API calls
+    headers = {'authorization': usertoken}
+    guild    = requests.get(API_BASE_URL + '/guilds/' + guildId, headers=headers).json()
+    messages = requests.get(API_BASE_URL + '/channels/' + channelId + '/messages', headers=headers, params=params).json()
+
+    def take8(l): return [l[0], l[1][:8]]
+
+    toInsert = [(str(message['id']),
+                 str(guildId),
+                 str(channelId),
+                 str(message['author']['id']),
+                 str(message['content']),
+                 str(' '.join(take8(message['timestamp'].split('T')))),
+                 str(message['author']['username']),
+                 message['author']['discriminator'],
+                 str(message['author']['avatar'])) for message in messages]
+    # DB Fill
+    returnValue = mysqldb.insertMessages(toInsert)
+
+    content = "From DB : " + returnValue + "<br>Got messages : <pre>" + messages + "</pre>"
+
+    # Render
+    return render_template("layout.html", content="Successfully inserted messages : ")
+
+
+
 @app.errorhandler(401)
 def unauthorized(e):
     return render_template("layout.html", content="Error 401", warningMessage=e.description), 401
@@ -163,6 +214,11 @@ def forbidden(e):
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("layout.html", content="Error 404"), 404
+
+
+@app.errorhandler(412)
+def page_not_found(e):
+    return render_template("layout.html", content="Error 412", warningMessage=e.description), 412
 
 
 @app.errorhandler(500)
@@ -208,4 +264,8 @@ def check_auth(user, usertoken):
 
 
 def run():
+    app.config['DB_HOST'] = 'localhost'
+    app.config['DB_USER'] = 'tumult'
+    app.config['DB_PASS'] = 'tumult-tumult'
+
     app.run(host='127.0.0.1', port=42424)
