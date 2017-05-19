@@ -1,7 +1,7 @@
 <h2>Your servers</h2>
 <div class="list-group servers-list">
     {% for server in servers %}
-    <a href="/server/{{ server.id }}" class="list-group-item list-group-item-action">
+    <a href="/server-info/{{ server.id }}" class="list-group-item list-group-item-action">
         <h4><img src="{{ serverimg(server.id, server.icon) }}" class="rounded"/> {{ server.name }}</h4><!-- Server ID : {{ server.id }} -->
     </a>
     {% endfor %}

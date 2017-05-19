@@ -157,11 +157,32 @@ def serverInfo(guildId):
     (user, usertoken) = get_user_cache(token, cache)
     check_auth(user, usertoken)
 
-    guild = {}
+    mysqldb = MySQL(current_app.config['DB_HOST'], current_app.config['DB_USER'], current_app.config['DB_PASS'])
+    mysqldb.connect()
+    messages = mysqldb.getMessages(guildId)
+    nbMessages = len(messages)
+
+    # API calls
+    headers = {'authorization': usertoken}
+    channel = requests.get(API_BASE_URL + '/channels/' + guildId, headers=headers).json()
+    guild    = requests.get(API_BASE_URL + '/guilds/' + guildId, headers=headers).json()
+    channels = requests.get(API_BASE_URL + '/guilds/' + guildId + '/channels', headers=headers).json()
+    cache['guilds'][guildId] = guild
+
+    guild = cache['guilds'][channel['guild_id']]
     data = {}
 
+    serverinfos = {
+        'nbmessages' : nbMessages,
+        'nbchannels' : 0,
+        'firstmessage' : "1-1-1990",
+        'lastmessage' : "1-1-1990"
+    }
+
+    # Compute things
+
     # Render
-    return render_template("layout.html", contentTemplate="server-info.html", user=user, server=guild, data=data)
+    return render_template("layout.html", contentTemplate="server-info.html", user=user, server=guild, data=data, serverinfos=serverinfos)
 
 
 @app.route("/compute/<guildId>")

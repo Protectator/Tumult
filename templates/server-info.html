@@ -6,10 +6,20 @@
     }
   </style>
 
-<h2>Server :</h2>
-<p><b>xx</b> messages</p>
-<p><b>xx</b> channels</p>
-<p>From <b>dateBegin</b> to <b>dateEnd</b></p>
+  <h2><img src="{{ serverimg(server.id, server.icon) }}" class="rounded small"/>{{ server.name }}</h2>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <p><b>{{ serverinfos.nbmessages }}</b> messages</p>
+        <p><b>{{ serverinfos.nbchannels }}</b> channels</p>
+        <p>From <b>{{ serverinfos.firstmessage }}</b> to <b>{{ serverinfos.lastmessage }}</b></p>
+      </div>
+      <div class="col">
+        <button type="button" class="btn btn-primary">Compute more stats</button>
+      </div>
+    </div>
+  </div>
+
 
 <h3>Stats</h3>
 
