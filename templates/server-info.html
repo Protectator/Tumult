@@ -10,12 +10,19 @@
   <div class="container">
     <div class="row">
       <div class="col">
+        <h2>Current informations</h2>
         <p><b>{{ serverinfos.nbmessages }}</b> messages</p>
         <p><b>{{ serverinfos.nbchannels }}</b> channels</p>
         <p>From <b>{{ serverinfos.firstmessage }}</b> to <b>{{ serverinfos.lastmessage }}</b></p>
       </div>
       <div class="col">
-        <button type="button" class="btn btn-primary">Compute more stats</button>
+        <h2>Compute more stats</h2>
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="100">
+          <span class="input-group-btn">
+            <button class="btn btn-secondary" type="button">Compute more messages</button>
+          </span>
+        </div>
       </div>
     </div>
   </div>

@@ -175,8 +175,8 @@ def serverInfo(guildId):
     serverinfos = {
         'nbmessages' : nbMessages,
         'nbchannels' : 0,
-        'firstmessage' : "1-1-1990",
-        'lastmessage' : "1-1-1990"
+        'firstmessage' : mysqldb.getFirstMessage(guildId),
+        'lastmessage' : mysqldb.getLastMessage(guildId)
     }
 
     # Compute things
@@ -200,15 +200,15 @@ def compute(guildId):
     params = {}
     headers = {'authorization': usertoken}
 
-    lastMessageId = mysqldb.getLastMessageId(channelId)
+    lastMessageId = mysqldb.getLastMessage(channelId)
     if lastMessageId is None:
         channel = requests.get(API_BASE_URL + '/channels/' + channelId, headers=headers).json()
         params = {'around': int(channel['last_message_id']), 'limit': 100}
     elif way == 'after':
-        lastMessageId = mysqldb.getLastMessageId(channelId)
+        lastMessageId = mysqldb.getLastMessage(channelId)
         params = {'after': int(lastMessageId['id']), 'limit': 100}
     elif way == 'before':
-        firstMessageId = mysqldb.getFirstMessageId(channelId)
+        firstMessageId = mysqldb.getFirstMessage(channelId)
         params = {'before': int(firstMessageId['id']), 'limit': 100}
     else:
         abort(412, "Incorrect 'time' parameter.")
@@ -236,8 +236,12 @@ def compute(guildId):
     content = "From DB : " + str(returnValue) + "<br>Got messages : <pre>" + str(messages) + "</pre>"
 
     # Render
-    return render_template("layout.html", content="Successfully inserted messages : ")
+    json = {
+        'result': 'ok',
+        'message': 'Successfully inserted messages'
+    }
 
+    return jsonify(json)
 
 
 @app.errorhandler(401)
