@@ -170,7 +170,9 @@ def serverInfo(guildId):
     cache['guilds'][guildId] = guild
 
     guild = cache['guilds'][channel['guild_id']]
-    data = {}
+    data = {
+        'guildId': guildId
+    }
 
     serverinfos = {
         'nbmessages' : nbMessages,
@@ -239,6 +241,29 @@ def compute(guildId):
     json = {
         'result': 'ok',
         'message': 'Successfully inserted messages'
+    }
+
+    return jsonify(json)
+
+
+@app.route("/api/graph/<channelId>")
+def graph(channelId):
+
+    # Logic
+    mysqldb = MySQL(current_app.config['DB_HOST'], current_app.config['DB_USER'], current_app.config['DB_PASS'])
+    mysqldb.connect()
+    messages = mysqldb.getMessages(channelId)
+
+    data = {}
+    for message in messages:
+        if message['author_id'] in data:
+            data[message['author_id']] += 1
+        else:
+            data[message['author_id']] = 1
+
+    # Render
+    json = {
+        'data': data
     }
 
     return jsonify(json)
