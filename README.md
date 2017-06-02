@@ -1,6 +1,20 @@
 # Tumult
 
+## 1. Contexte et objectifs du projet
 **Tumult** shows statistics about comments Discord messages.
+
+## 2. Données (sources, quantité, évtl. pré-traitement, description)
+
+## 3. Planification, répartition du travail
+
+## 4. Fonctionnalités / cas d’utilisation
+
+## 5. Techniques, algorithmes et outils utilisés
+
+## 6. Conclusion
+
+
+
 
 ## Requirements
 
