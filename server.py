@@ -187,7 +187,7 @@ def serverInfo(guildId):
     return render_template("layout.html", contentTemplate="server-info.html", user=user, server=guild, data=data, serverinfos=serverinfos)
 
 
-@app.route("/compute/<guildId>")
+@app.route("/api/compute/<guildId>")
 def compute(guildId):
     # Auth and session
     token = session.get('oauth2_token')

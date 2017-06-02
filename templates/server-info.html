@@ -13,20 +13,45 @@
       <h2>Current informations</h2>
       <p><b>{{ serverinfos.nbmessages }}</b> messages</p>
       <p><b>{{ serverinfos.nbchannels }}</b> channels</p>
-      <p>From <b>{{ serverinfos.firstmessage }}</b> to <b>{{ serverinfos.lastmessage }}</b></p>
+      <p>From <b>{{ serverinfos.firstmessage.timestamp }}</b> to <b>{{ serverinfos.lastmessage.timestamp }}</b></p>
     </div>
     <div class="col">
       <h2>Compute more stats</h2>
-      <div class="input-group">
-        <input type="text" class="form-control" placeholder="100">
-        <span class="input-group-btn">
-            <button class="btn btn-secondary" type="button">Compute more messages</button>
-          </span>
-      </div>
+      <form class="form-inline">
+        <label class="mr-sm-2" for="channelSelect">Channel</label>
+        <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="channelSelect">
+          <option value="0">General</option>
+          <option value="1">One</option>
+          <option value="2">Two</option>
+        </select>
+        <label class="sr-only" for="nbMessagesInpute">Nb messages</label>
+        <input type="number" class="form-control mb-2 mr-sm-2 mb-sm-0" id="nbMessagesInpute" placeholder="100">
+        <button type="submit" class="btn btn-primary">Compute</button>
+      </form>
     </div>
   </div>
 </div>
 
+<!-- COMPUTE BUTTON LOGIC -->
+<script>
+  var computeButton = document.getElementById("computeButton");
+  var nbMessagesInput = document.getElementById("nbMessages");
+  var channelSelect = document.getElementById("channelSelect");
+
+  computeButton.on('click', function () {
+
+      var guildId = '{{ data.guildId }}';
+      var channelId = 0; // Select value
+
+      fetch('/api/compute/' + guildId + "?channelId=" + channelId)
+          .then(function(response) {
+              return response.json();
+          })
+          .then(function(json) {
+              nodes = json['data'];
+          });
+  });
+</script>
 
 <h3>Stats</h3>
 
