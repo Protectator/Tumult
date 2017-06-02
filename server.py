@@ -8,6 +8,10 @@ import os
 import datetime
 import requests
 import time
+import random
+
+from builtins import int
+
 from mysql import MySQL
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, abort, current_app
 from requests_oauthlib import OAuth2Session
@@ -248,22 +252,54 @@ def compute(guildId):
 
 @app.route("/api/graph/<channelId>")
 def graph(channelId):
-
     # Logic
     mysqldb = MySQL(current_app.config['DB_HOST'], current_app.config['DB_USER'], current_app.config['DB_PASS'])
     mysqldb.connect()
     messages = mysqldb.getMessages(channelId)
 
-    data = {}
+    count = {}
+    label = {}
     for message in messages:
-        if message['author_id'] in data:
-            data[message['author_id']] += 1
+        if message['author_id'] in count:
+            count[message['author_id']]  += 1
         else:
-            data[message['author_id']] = 1
+            count[message['author_id']] = 1
+            label[message['author_id']] = message['author_username']
+
+    nodes = []
+    for author in count:
+        r = lambda: random.randint(0, 255)
+        node = {
+            'id': author,
+            'label': label[author],
+            'color': ('#%02X%02X%02X' % (r(), r(), r())),
+            'value': count[author]
+        }
+        nodes.append(node)
+
+    #[{from: 1, to: 3, value: 3},..]
+    edges = []
+    labels = {}
+    for i in range(1, len(messages)):
+        key = (messages[i]['author_id'],messages[i-1]['author_id'])
+        if key in labels:
+            labels[key] += 1
+        else:
+            labels[key] = 1
+
+    for label in labels:
+        edge = {
+            'from': label[0],
+            'to': label[1],
+            'value': labels[label]
+        }
+        edges.append(edge)
+
 
     # Render
     json = {
-        'data': data
+        'nodes': nodes,
+        'edges': edges
     }
 
     return jsonify(json)

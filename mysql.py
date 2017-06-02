@@ -8,6 +8,8 @@ insertMessagesSQL = "INSERT INTO `messages`" \
 getLastMessageSQL = "SELECT * FROM `messages` WHERE (channel_id=%s) ORDER BY timestamp DESC LIMIT 1"
 getFirstMessageSQL = "SELECT * FROM `messages` WHERE (channel_id=%s) ORDER BY timestamp ASC LIMIT 1"
 
+getChannelUserSQL = "SELECT DISTINCT author_id FROM tumult.messages WHERE (channel_id=%s);"
+
 
 class MySQL:
     def __init__(self, host, user, password, dbname='tumult'):
@@ -43,4 +45,9 @@ class MySQL:
     def getFirstMessage(self, channelId):
         with self.tumult.cursor() as tumult:
             tumult.execute(getFirstMessageSQL, channelId)
+            return tumult.fetchone()
+
+    def getChannelUsers(self, channelId):
+        with self.tumult.cursor() as tumult:
+            tumult.execute(getChannelUserSQL, channelId)
             return tumult.fetchone()
