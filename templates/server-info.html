@@ -50,10 +50,11 @@
         })
         .then(function (json) {
             nodesJson = json['nodes'];
-            edgesJson = json['edges']
+            edgesJson = json['edges'];
 
             //--> code here
-            nodes = new vis.DataSet(nodesJson)
+            nodes = new vis.DataSet(nodesJson);
+            edges = new vis.DataSet(edgesJson);
 
             // Instantiate our network object.
             var container = document.getElementById('mynetwork');
@@ -70,6 +71,12 @@
                         },
                         min: 5,
                         max: 150
+                    }
+                },
+                physics: {
+                    repulsion: {
+                        nodeDistance: 200,
+                        centralGravity: 0.1
                     }
                 }
             };

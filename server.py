@@ -9,6 +9,9 @@ import datetime
 import requests
 import time
 import random
+
+from builtins import int
+
 from mysql import MySQL
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, abort, current_app
 from requests_oauthlib import OAuth2Session
@@ -274,7 +277,24 @@ def graph(channelId):
         }
         nodes.append(node)
 
-    edges = {}
+    #[{from: 1, to: 3, value: 3},..]
+    edges = []
+    labels = {}
+    for i in range(1, len(messages)):
+        key = (messages[i]['author_id'],messages[i-1]['author_id'])
+        if key in labels:
+            labels[key] += 1
+        else:
+            labels[key] = 1
+
+    for label in labels:
+        edge = {
+            'from': label[0],
+            'to': label[1],
+            'value': labels[label]
+        }
+        edges.append(edge)
+
 
     # Render
     json = {
