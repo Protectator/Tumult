@@ -291,6 +291,7 @@ def graph(channelId):
         edge = {
             'from': label[0],
             'to': label[1],
+            'arrows': 'to',
             'value': labels[label]
         }
         edges.append(edge)

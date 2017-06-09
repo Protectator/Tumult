@@ -87,9 +87,18 @@
                 edges: edges
             };
             var options = {
+                "edges": {
+                    "smooth": {
+                        "forceDirection": "none"
+                    }
+                },
                 nodes: {
                     shape: 'dot',
                     scaling: {
+                        label: {
+                            min: 18,
+                            max: 30
+                        },
                         customScalingFunction: function (min, max, total, value) {
                             return value / total;
                         },
@@ -97,11 +106,13 @@
                         max: 150
                     }
                 },
-                physics: {
-                    repulsion: {
-                        nodeDistance: 200,
-                        centralGravity: 0.1
-                    }
+                "physics": {
+                    "barnesHut": {
+                        "avoidOverlap": 0.5,
+                        //"centralGravity": 1,
+                        "springLength": 700
+                    },
+                    "minVelocity": 0.75
                 }
             };
             network = new vis.Network(container, data, options);
