@@ -9,6 +9,7 @@ import datetime
 import requests
 import time
 import random
+import colorsys
 
 from builtins import int
 
@@ -175,7 +176,8 @@ def serverInfo(guildId):
 
     guild = cache['guilds'][channel['guild_id']]
     data = {
-        'guildId': guildId
+        'guildId': guildId,
+        'channels': channels
     }
 
     serverinfos = {
@@ -196,7 +198,6 @@ def compute(guildId):
     # Auth and session
     token = session.get('oauth2_token')
     (user, usertoken) = get_user_cache(token, cache)
-    check_auth(user, usertoken)
 
     # Logic
     way = request.args.get('time')
@@ -204,6 +205,8 @@ def compute(guildId):
     mysqldb = MySQL(current_app.config['DB_HOST'], current_app.config['DB_USER'], current_app.config['DB_PASS'])
     mysqldb.connect()
     params = {}
+
+    # API calls
     headers = {'authorization': usertoken}
 
     lastMessageId = mysqldb.getLastMessage(channelId)
@@ -220,9 +223,6 @@ def compute(guildId):
         abort(412, "Incorrect 'time' parameter.")
         return
 
-    # API calls
-    headers = {'authorization': usertoken}
-    guild    = requests.get(API_BASE_URL + '/guilds/' + guildId, headers=headers).json()
     messages = requests.get(API_BASE_URL + '/channels/' + channelId + '/messages', headers=headers, params=params).json()
 
     def take8(l): return [l[0], l[1][:8]]
@@ -267,15 +267,20 @@ def graph(channelId):
             label[message['author_id']] = message['author_username']
 
     nodes = []
+
+
+    authors = len(count)
+    i = 0
     for author in count:
-        r = lambda: random.randint(0, 255)
+        color = colorsys.hsv_to_rgb(1/authors*i,1,1)
         node = {
             'id': author,
             'label': label[author],
-            'color': ('#%02X%02X%02X' % (r(), r(), r())),
+            'color': ('#%02X%02X%02X' % (int(color[0]*255), int(color[1]*255), int(color[2]*255))),
             'value': count[author]
         }
         nodes.append(node)
+        i+=1
 
     #[{from: 1, to: 3, value: 3},..]
     edges = []
