@@ -10,29 +10,27 @@
     var channels = {{ data.channels | tojson }};
 </script>
 
-<h2><img src="{{ serverimg(server.id, server.icon) }}" class="rounded small"/>{{ server.name }}</h2>
+<h2><img src="{{ serverimg(server.id, server.icon) }}" class="rounded small"/>{{ server.name }} <select class="custom-select mb-2 mr-sm-2 mb-sm-0" style="font-size: 18px;" id="channelSelect">
+    {% for channel in data.channels %}
+    {% if channel.type == "text" %}
+    <option value="{{ channel.id }}">#{{ channel.name }}</option>
+    {% endif %}
+    {% endfor %}
+</select></h2>
 <div class="container">
     <div class="row">
         <div class="col">
-            <h2>Current informations</h2>
-            <p><b>{{ serverinfos.nbmessages }}</b> messages</p>
-            <p><b>{{ serverinfos.nbchannels }}</b> channels</p>
-            <p>From <b>{{ serverinfos.firstmessage.timestamp }}</b> to <b>{{ serverinfos.lastmessage.timestamp }}</b>
+            <h2>Channel {{ data.channelId }}</h2>
+            <p><b>{{ channelinfos.nbmessages }}</b> messages</p>
+            <p>From <b>{{ channelinfos.firstmessage.timestamp }}</b> to <b>{{ channelinfos.lastmessage.timestamp }}</b>
             </p>
         </div>
         <div class="col">
             <h2>Compute more stats</h2>
             <form class="form-inline">
                 <label class="mr-sm-2" for="channelSelect">Channel</label>
-                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="channelSelect">
-                    {% for channel in data.channels %}
-                        {% if channel.type == "text" %}
-                            <option value="{{ channel.id }}">#{{ channel.name }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
                 <label class="sr-only" for="nbMessagesInput">Nb messages</label>
-                <input type="number" class="form-control mb-2 mr-sm-2 mb-sm-0" id="nbMessagesInput" placeholder="100">
+                <input type="number" class="form-control mb-2 mr-sm-2 mb-sm-0" id="nbMessagesInput" placeholder="100" step="10" min="0" max="1000">
                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="timeSelect">
                     <option value="before">older</option>
                     <option value="after">newer</option>
@@ -50,14 +48,15 @@
         var channelSelect = document.getElementById("channelSelect");
         var timeSelect = document.getElementById("timeSelect");
 
+        var guildId = '{{ data.guildId }}';
+        var channelId = '{{ data.channelId }}';// channelSelect.value; // Select value
+
         computeButton.addEventListener('click', function () {
 
-            var guildId = '{{ data.guildId }}';
-            var channelId = channelSelect.value; // Select value
             var time = timeSelect.value;
             if (guildId && channelId && time) {
                 computeButton.disabled = true;
-                computeButton.innerText = "Computing..."
+                computeButton.innerText = "Computing...";
                 fetch('/api/compute/' + guildId + "?channelId=" + channelId + "&time=" + time, {credentials: 'include'})
                     .then(function (response) {
                         return response.json();
@@ -68,6 +67,11 @@
                     });
             }
         });
+
+        channelSelect.addEventListener('change', function () {
+            var newChannelId = channelSelect.value;
+            window.location = '/server-info/' + guildId + '/' + newChannelId;
+        })
     </script>
 
     <h3>Stats</h3>
@@ -81,14 +85,16 @@
     <div id="mynetwork"></div>
 
     <script>
-        var channelId = '{{ data.guildId }}';
+        var channelId = '{{ data.channelId }}';
         var nodesJson;
         var edgesJson;
         var nodes;
         var edges;
         function showGraph() {
+            console.log("Sending call");
             fetch('/api/graph/' + channelId)
                 .then(function (response) {
+                    console.log("Received response");
                     return response.json();
                 })
                 .then(function (json) {
@@ -138,9 +144,11 @@
                         }
                     };
                     network = new vis.Network(container, data, options);
+                    console.log("Graph displayed.");
                 });
         }
         (function() {
+            console.log("Calling show graph.");
             showGraph();
         })();
     </script>

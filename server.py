@@ -155,21 +155,24 @@ def channel(channelId):
     # Render
     return render_template("layout.html", contentTemplate="channel.html", user=user, channel=channel, server=guild, messages=messages)
 
-@app.route("/server-info/<guildId>")
-def serverInfo(guildId):
+@app.route("/server-info/<guildId>", defaults={'channelId': None})
+@app.route("/server-info/<guildId>/<channelId>")
+def serverInfo(guildId, channelId):
     # Auth and session
     token = session.get('oauth2_token')
     (user, usertoken) = get_user_cache(token, cache)
     check_auth(user, usertoken)
 
+    channelId = channelId if (channelId != None) else guildId
+
     mysqldb = MySQL(current_app.config['DB_HOST'], current_app.config['DB_USER'], current_app.config['DB_PASS'])
     mysqldb.connect()
-    messages = mysqldb.getMessages(guildId)
+    messages = mysqldb.getMessages(channelId)
     nbMessages = len(messages)
 
     # API calls
     headers = {'authorization': usertoken}
-    channel = requests.get(API_BASE_URL + '/channels/' + guildId, headers=headers).json()
+    channel = requests.get(API_BASE_URL + '/channels/' + channelId, headers=headers).json()
     guild    = requests.get(API_BASE_URL + '/guilds/' + guildId, headers=headers).json()
     channels = requests.get(API_BASE_URL + '/guilds/' + guildId + '/channels', headers=headers).json()
     cache['guilds'][guildId] = guild
@@ -177,20 +180,21 @@ def serverInfo(guildId):
     guild = cache['guilds'][channel['guild_id']]
     data = {
         'guildId': guildId,
+        'channelId': channelId,
         'channels': channels
     }
 
-    serverinfos = {
+    channelinfos = {
         'nbmessages' : nbMessages,
         'nbchannels' : 0,
-        'firstmessage' : mysqldb.getFirstMessage(guildId),
-        'lastmessage' : mysqldb.getLastMessage(guildId)
+        'firstmessage' : mysqldb.getFirstMessage(channelId),
+        'lastmessage' : mysqldb.getLastMessage(channelId)
     }
 
     # Compute things
 
     # Render
-    return render_template("layout.html", contentTemplate="server-info.html", user=user, server=guild, data=data, serverinfos=serverinfos)
+    return render_template("layout.html", contentTemplate="server-info.html", user=user, server=guild, data=data, channelinfos=channelinfos)
 
 
 @app.route("/api/compute/<guildId>")
