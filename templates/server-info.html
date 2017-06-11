@@ -13,14 +13,14 @@
 <h2><img src="{{ serverimg(server.id, server.icon) }}" class="rounded small"/>{{ server.name }} <select class="custom-select mb-2 mr-sm-2 mb-sm-0" style="font-size: 18px;" id="channelSelect">
     {% for channel in data.channels %}
     {% if channel.type == "text" %}
-    <option value="{{ channel.id }}">#{{ channel.name }}</option>
+    <option value="{{ channel.id }}" {% if channel.id == data.channelId %} selected {% endif %}>#{{ channel.name }}</option>
     {% endif %}
     {% endfor %}
 </select></h2>
 <div class="container">
     <div class="row">
         <div class="col">
-            <h2>Channel {{ data.channelId }}</h2>
+            <h2>Channel {{ data.channels[data.channelId] }}</h2>
             <p><b>{{ channelinfos.nbmessages }}</b> messages</p>
             <p>From <b>{{ channelinfos.firstmessage.timestamp }}</b> to <b>{{ channelinfos.lastmessage.timestamp }}</b>
             </p>
@@ -57,7 +57,12 @@
             if (guildId && channelId && time) {
                 computeButton.disabled = true;
                 computeButton.innerText = "Computing...";
-                fetch('/api/compute/' + guildId + "?channelId=" + channelId + "&time=" + time, {credentials: 'include'})
+                nb = nbMessagesInput.value;
+                var nbString = '';
+                if (nb.length > 0) {
+                    nbString = "&number=" + nb;
+                }
+                fetch('/api/compute/' + guildId + "?channelId=" + channelId + "&time=" + time + nbString, {credentials: 'include'})
                     .then(function (response) {
                         return response.json();
                     })
@@ -70,7 +75,7 @@
 
         channelSelect.addEventListener('change', function () {
             var newChannelId = channelSelect.value;
-            window.location = '/server-info/' + guildId + '/' + newChannelId;
+            window.location.href = '/server-info/' + guildId + '/' + newChannelId;
         })
     </script>
 

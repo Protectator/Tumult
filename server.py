@@ -210,40 +210,60 @@ def compute(guildId):
     mysqldb.connect()
     params = {}
 
+    nbMessagesStr = request.args.get('number')
+    if nbMessagesStr is not None:
+        nbMessagesLeft = int(request.args.get('number'))
+    else:
+        nbMessagesLeft = 100
+    if nbMessagesLeft < 0:
+        nbMessagesLeft = 100
+    if nbMessagesLeft > 1000:
+        nbMessagesLeft = 1000
+
     # API calls
     headers = {'authorization': usertoken}
 
-    lastMessageId = mysqldb.getLastMessage(channelId)
-    if lastMessageId is None:
-        channel = requests.get(API_BASE_URL + '/channels/' + channelId, headers=headers).json()
-        params = {'around': int(channel['last_message_id']), 'limit': 100}
-    elif way == 'after':
+    first = True
+
+    while nbMessagesLeft > 0:
+        if not first:
+            time.sleep(1)
+        first = False
+        nbToTake = nbMessagesLeft
+        if nbMessagesLeft > 100:
+            nbToTake = 100
+
         lastMessageId = mysqldb.getLastMessage(channelId)
-        params = {'after': int(lastMessageId['id']), 'limit': 100}
-    elif way == 'before':
-        firstMessageId = mysqldb.getFirstMessage(channelId)
-        params = {'before': int(firstMessageId['id']), 'limit': 100}
-    else:
-        abort(412, "Incorrect 'time' parameter.")
-        return
+        if lastMessageId is None:
+            channel = requests.get(API_BASE_URL + '/channels/' + channelId, headers=headers).json()
+            params = {'around': int(channel['last_message_id']), 'limit': nbToTake}
+        elif way == 'after':
+            lastMessageId = mysqldb.getLastMessage(channelId)
+            params = {'after': int(lastMessageId['id']), 'limit': nbToTake}
+        elif way == 'before':
+            firstMessageId = mysqldb.getFirstMessage(channelId)
+            params = {'before': int(firstMessageId['id']), 'limit': nbToTake}
+        else:
+            abort(412, "Incorrect 'time' parameter.")
+            return
 
-    messages = requests.get(API_BASE_URL + '/channels/' + channelId + '/messages', headers=headers, params=params).json()
+        messages = requests.get(API_BASE_URL + '/channels/' + channelId + '/messages', headers=headers, params=params).json()
 
-    def take8(l): return [l[0], l[1][:8]]
+        def take8(l): return [l[0], l[1][:8]]
 
-    toInsert = [(str(message['id']),
-                 str(guildId),
-                 str(channelId),
-                 str(message['author']['id']),
-                 str(message['content']),
-                 str(' '.join(take8(message['timestamp'].split('T')))),
-                 str(message['author']['username']),
-                 message['author']['discriminator'],
-                 str(message['author']['avatar'])) for message in messages]
-    # DB Fill
-    returnValue = mysqldb.insertMessages(toInsert)
+        toInsert = [(str(message['id']),
+                     str(guildId),
+                     str(channelId),
+                     str(message['author']['id']),
+                     str(message['content']),
+                     str(' '.join(take8(message['timestamp'].split('T')))),
+                     str(message['author']['username']),
+                     message['author']['discriminator'],
+                     str(message['author']['avatar'])) for message in messages]
+        # DB Fill
+        returnValue = mysqldb.insertMessages(toInsert)
 
-    content = "From DB : " + str(returnValue) + "<br>Got messages : <pre>" + str(messages) + "</pre>"
+        nbMessagesLeft -= nbToTake
 
     # Render
     json = {
