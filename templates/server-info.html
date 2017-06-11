@@ -140,7 +140,9 @@
                     network = new vis.Network(container, data, options);
                 });
         }
-        showGraph();
+        (function() {
+            showGraph();
+        })();
     </script>
 
 
