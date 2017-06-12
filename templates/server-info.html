@@ -4,8 +4,14 @@
         height: 80vh;
         border: 1px solid lightgray;
     }
-</style>
 
+    #chart {
+        width: 100%;
+        height: 80vh;
+        border: 1px solid lightgray;
+    }
+</style>
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
 <script>
     var channels = {{ data.channels | tojson }};
 </script>
@@ -101,6 +107,7 @@
 
         <div class="tab-pane" id="time" role="tabpanel">
             Time graph here
+            <div id="chart"></div>
         </div>
 
         <div class="tab-pane" id="graph" role="tabpanel">
@@ -132,6 +139,7 @@
                         .then(function (json) {
                             nodesJson = json['nodes'];
                             edgesJson = json['edges'];
+                            daysJson = json['days'];
 
                             //--> code here
                             nodes = new vis.DataSet(nodesJson);
@@ -223,6 +231,91 @@
                                 tbody.appendChild(tr);
                             }
                             table.appendChild(tbody);
+                            // HighStock
+                            seriesOptions = [];
+                            seriesOptions[0] = {
+                                name: "SALUT",
+                                data: daysJson
+                            };
+
+                            Highcharts.stockChart('chart', {
+
+                                rangeSelector: {
+                                    selected: 4
+                                },
+
+                                yAxis: {
+                                    labels: {
+                                        formatter: function () {
+                                            return (this.value > 0 ? ' + ' : '') + this.value + '%';
+                                        }
+                                    },
+                                    plotLines: [{
+                                        value: 0,
+                                        width: 2,
+                                        color: 'silver'
+                                    }]
+                                },
+
+                                plotOptions: {
+                                    series: {
+                                        compare: 'percent',
+                                        showInNavigator: true
+                                    }
+                                },
+
+                                tooltip: {
+                                    pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+                                    valueDecimals: 2,
+                                    split: true
+                                },
+
+                                series: seriesOptions
+                            });
+
+                            /*
+                            Highcharts.stockChart('chart', {
+
+                                credits: {
+                                    enabled: false
+                                },
+                                chart: {
+                                    plotBackgroundColor: "#F8F8F8"
+                                },
+
+                                navigator: {
+                                    //maskFill: 'rgba(255, 0, 0, 1)',
+                                },
+
+                                rangeSelector: {
+                                    selected: 1,
+                                    allButtonsEnabled: true,
+                                    inputEnabled: true,
+                                    inputDateFormat: "%d/%m/%Y",
+                                    inputEditDateFormat: "%d/%m/%Y"
+                                },
+
+                                title: {
+                                    text: 'Reports by date'
+                                },
+
+                                xAxis: {
+                                    type: 'datetime',
+                                    dateTimeLabelFormats: { // don't display the dummy year
+                                        month: '%m/%Y',
+                                        year: '%Y'
+                                    }
+                                },
+
+                                series: [{
+                                    name: 'Reports',
+                                    data: daysJson,
+                                    tooltip: {
+                                        valueDecimals: 0
+                                    }
+                                }]
+
+                            });*/
                         });
                 }
                 (function() {

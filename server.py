@@ -3,6 +3,7 @@
 """
 This file is part of Tumult.
 """
+import calendar
 import os
 
 import datetime
@@ -281,6 +282,7 @@ def graph(channelId):
     mysqldb.connect()
     messages = mysqldb.getMessages(channelId)
 
+    # main logic
     count = {}
     label = {}
     for message in messages:
@@ -291,7 +293,6 @@ def graph(channelId):
             label[message['author_id']] = message['author_username']
 
     nodes = []
-
 
     authors = len(count)
     i = 0
@@ -309,12 +310,30 @@ def graph(channelId):
     #[{from: 1, to: 3, value: 3},..]
     edges = []
     labels = {}
+    days = {}
     for i in range(1, len(messages)):
+        # graph
         key = (messages[i]['author_id'],messages[i-1]['author_id'])
         if key in labels:
             labels[key] += 1
         else:
             labels[key] = 1
+        # time
+        timestamp = messages[i]['timestamp']
+        # timeKey = timestamp.strftime('%Y/%m/%d')
+        d = datetime.date(timestamp.year, timestamp.month, timestamp.day)
+        timeKey = calendar.timegm(d.timetuple())
+        #timeKey = int(time.mktime(timestamp.timetuple()))
+        if (timeKey in days):
+            days[timeKey] += 1
+        else:
+            days[timeKey] = 1
+    dayList = []
+    daysSorted = sorted(days)
+    for day in daysSorted:
+        dayList.append([day*1000, days[day]])
+
+
 
     for label in labels:
         edge = {
@@ -329,7 +348,8 @@ def graph(channelId):
     # Render
     json = {
         'nodes': nodes,
-        'edges': edges
+        'edges': edges,
+        'days': dayList
     }
 
     return jsonify(json)
