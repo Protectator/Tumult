@@ -20,7 +20,6 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <h2>Channel {{ data.channels[data.channelId] }}</h2>
             <p><b>{{ channelinfos.nbmessages }}</b> messages</p>
             <p>From <b>{{ channelinfos.firstmessage.timestamp }}</b> to <b>{{ channelinfos.lastmessage.timestamp }}</b>
             </p>
@@ -28,9 +27,9 @@
         <div class="col">
             <h2>Compute more stats</h2>
             <form class="form-inline">
-                <label class="mr-sm-2" for="channelSelect">Channel</label>
+                <label class="mr-sm-2" for="channelSelect">Messages</label>
                 <label class="sr-only" for="nbMessagesInput">Nb messages</label>
-                <input type="number" class="form-control mb-2 mr-sm-2 mb-sm-0" id="nbMessagesInput" placeholder="100" step="10" min="0" max="1000">
+                <input type="number" class="form-control mb-2 mr-sm-2 mb-sm-0" id="nbMessagesInput" placeholder="100" step="10" min="0" max="1000" maxlength="4">
                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="timeSelect">
                     <option value="before">older</option>
                     <option value="after">newer</option>
@@ -79,83 +78,161 @@
         })
     </script>
 
-    <h3>Stats</h3>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#stats" role="tab" aria-controls="stats">Stats</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#time" role="tab" aria-controls="time">Time graph</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#graph" role="tab" aria-controls="graph">Answers graph</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="stats" role="tabpanel" style="overflow-x: auto;">
+            <table class="table table-bordered" id="statsTable">
+            </table>
+        </div>
 
-    <hr class="my-4">
+        <div class="tab-pane" id="time" role="tabpanel">
+            Time graph here
+        </div>
 
-    <!-- GRAPH -->
+        <div class="tab-pane" id="graph" role="tabpanel">
+            <!-- GRAPH -->
 
-    <h3>Graph</h3>
+            <h4>Graph</h4>
 
-    <div id="mynetwork"></div>
+            Here is a graph representing the flow of conversation between its members.
+            Nodes are people, and edges are messages.
+            An arrow A→B means that A sent a message, and then B sent an answer. It can so be viewed as<br/>
+            A→B means "A talks to B".
 
-    <script>
-        var channelId = '{{ data.channelId }}';
-        var nodesJson;
-        var edgesJson;
-        var nodes;
-        var edges;
-        function showGraph() {
-            console.log("Sending call");
-            fetch('/api/graph/' + channelId)
-                .then(function (response) {
-                    console.log("Received response");
-                    return response.json();
-                })
-                .then(function (json) {
-                    nodesJson = json['nodes'];
-                    edgesJson = json['edges'];
+            <div id="mynetwork"></div>
 
-                    //--> code here
-                    nodes = new vis.DataSet(nodesJson);
-                    edges = new vis.DataSet(edgesJson);
+            <script>
+                var channelId = '{{ data.channelId }}';
+                var table = document.getElementById('statsTable');
+                var nodesJson;
+                var edgesJson;
+                var nodes;
+                var edges;
+                function showGraph() {
+                    console.log("Sending call");
+                    fetch('/api/graph/' + channelId)
+                        .then(function (response) {
+                            console.log("Received response");
+                            return response.json();
+                        })
+                        .then(function (json) {
+                            nodesJson = json['nodes'];
+                            edgesJson = json['edges'];
 
-                    // Instantiate our network object.
-                    var container = document.getElementById('mynetwork');
-                    var data = {
-                        nodes: nodes,
-                        edges: edges
-                    };
-                    var options = {
-                        "edges": {
-                            "smooth": {
-                                "forceDirection": "none"
-                            }
-                        },
-                        "nodes": {
-                            shape: 'dot',
-                            scaling: {
-                                label: {
-                                    min: 18,
-                                    max: 30
+                            //--> code here
+                            nodes = new vis.DataSet(nodesJson);
+                            edges = new vis.DataSet(edgesJson);
+
+                            // Instantiate our network object.
+                            var container = document.getElementById('mynetwork');
+                            var data = {
+                                nodes: nodes,
+                                edges: edges
+                            };
+                            var options = {
+                                "edges": {
+                                    "smooth": {
+                                        "forceDirection": "none"
+                                    }
                                 },
-                                customScalingFunction: function (min, max, total, value) {
-                                    return value / total;
+                                "nodes": {
+                                    shape: 'dot',
+                                    scaling: {
+                                        label: {
+                                            min: 18,
+                                            max: 30
+                                        },
+                                        customScalingFunction: function (min, max, total, value) {
+                                            return value / total;
+                                        },
+                                        min: 5,
+                                        max: 150
+                                    }
                                 },
-                                min: 5,
-                                max: 150
+                                "physics": {
+                                    "barnesHut": {
+                                        "avoidOverlap": 0.5,
+                                        //"centralGravity": 1,
+                                        "springLength": 700
+                                    },
+                                    "minVelocity": 0.75
+                                },
+                                "layout": {
+                                    "improvedLayout": true
+                                }
+                            };
+                            network = new vis.Network(container, data, options);
+                            console.log("Graph displayed.");
+                            // Table
+                            var nodes = json['nodes'];
+                            var edges = json['edges'];
+
+                            var tdata = {};
+                            var name = {};
+                            for (var i = 0; i < nodes.length; i++) {
+                                var e = nodes[i];
+                                tdata[e.id] = {};
+                                name[e.id] = e.label;
                             }
-                        },
-                        "physics": {
-                            "barnesHut": {
-                                "avoidOverlap": 0.5,
-                                //"centralGravity": 1,
-                                "springLength": 700
-                            },
-                            "minVelocity": 0.75
-                        },
-                        "layout": {
-                            "improvedLayout": true
-                        }
-                    };
-                    network = new vis.Network(container, data, options);
-                    console.log("Graph displayed.");
-                });
-        }
-        (function() {
-            console.log("Calling show graph.");
-            showGraph();
-        })();
-    </script>
+                            for (i = 0; i < edges.length; i++) {
+                                e = edges[i];
+                                tdata[e.from][e.to] = e.value;
+                            }
+                            head = document.createElement("thead");
+                            trhead = document.createElement("tr");
+                            th = document.createElement("th");
+                            th.innerHTML = "<span style='float: right;'>Sent</span><br/>Answered";
+                            trhead.appendChild(th);
+                            for (var id in name) {
+                                th = document.createElement("th");
+                                th.appendChild(document.createTextNode(name[id]));
+                                trhead.appendChild(th);
+                            }
+                            head.appendChild(trhead);
+                            table.appendChild(head);
+
+                            tbody = document.createElement("tbody");
+                            for (from in name) {
+                                tr = document.createElement("tr");
+                                th = document.createElement("th");
+                                th.appendChild(document.createTextNode(name[from]));
+                                tr.appendChild(th);
+                                for (to in name) {
+                                    td = document.createElement("td");
+                                    if (tdata[to][from]) {
+                                        td.appendChild(document.createTextNode(tdata[to][from]));
+                                    } else {
+                                        td.appendChild(document.createTextNode('0'));
+                                    }
+                                    tr.appendChild(td);
+                                }
+                                tbody.appendChild(tr);
+                            }
+                            table.appendChild(tbody);
+                        });
+                }
+                (function() {
+                    console.log("Calling show graph.");
+                    $(function () {
+                        $('#myTab a:first').tab('show');
+                    });
+                    showGraph();
+                })();
+            </script>
+        </div>
+    </div>
+
+
+
 
 
