@@ -86,13 +86,13 @@
 
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item">
-            <a class="nav-link active" data-toggle="tab" href="#stats" role="tab" aria-controls="stats">Stats</a>
+            <a class="nav-link active" data-toggle="tab" href="#stats" role="tab" aria-controls="stats">Table</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#time" role="tab" aria-controls="time">Time graph</a>
+            <a class="nav-link" data-toggle="tab" href="#time" role="tab" aria-controls="time">Time</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#graph" role="tab" aria-controls="graph">Answers graph</a>
+            <a class="nav-link" data-toggle="tab" href="#graph" role="tab" aria-controls="graph">Answers</a>
         </li>
     </ul>
     <div class="tab-content">
@@ -106,14 +106,17 @@
         </div>
 
         <div class="tab-pane" id="time" role="tabpanel">
-            Time graph here
+            <h4>Time</h4>
+
+            Here is a graph showing the amount of messages posted each day by the different members.
+
             <div id="chart"></div>
         </div>
 
         <div class="tab-pane" id="graph" role="tabpanel">
             <!-- GRAPH -->
 
-            <h4>Graph</h4>
+            <h4>Answers</h4>
 
             Here is a graph representing the flow of conversation between its members.
             Nodes are people, and edges are messages.
@@ -247,7 +250,7 @@
                                 yAxis: {
                                     labels: {
                                         formatter: function () {
-                                            return (this.value > 0 ? ' + ' : '') + this.value + '%';
+                                            return this.value;
                                         }
                                     },
                                     plotLines: [{
@@ -255,13 +258,6 @@
                                         width: 2,
                                         color: 'silver'
                                     }]
-                                },
-
-                                plotOptions: {
-                                    series: {
-                                        compare: 'percent',
-                                        showInNavigator: true
-                                    }
                                 },
 
                                 tooltip: {
