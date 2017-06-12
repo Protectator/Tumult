@@ -236,10 +236,15 @@
                             table.appendChild(tbody);
                             // HighStock
                             seriesOptions = [];
-                            seriesOptions[0] = {
-                                name: "SALUT",
-                                data: daysJson
-                            };
+
+                            var i = 0;
+                            for (var member in daysJson) {
+                                seriesOptions[i] = {
+                                    name: name[member],
+                                    data: daysJson[member]
+                                };
+                                i++;
+                            }
 
                             Highcharts.stockChart('chart', {
 
@@ -261,57 +266,13 @@
                                 },
 
                                 tooltip: {
-                                    pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
-                                    valueDecimals: 2,
+                                    pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>',
+                                    valueDecimals: 0,
                                     split: true
                                 },
 
                                 series: seriesOptions
                             });
-
-                            /*
-                            Highcharts.stockChart('chart', {
-
-                                credits: {
-                                    enabled: false
-                                },
-                                chart: {
-                                    plotBackgroundColor: "#F8F8F8"
-                                },
-
-                                navigator: {
-                                    //maskFill: 'rgba(255, 0, 0, 1)',
-                                },
-
-                                rangeSelector: {
-                                    selected: 1,
-                                    allButtonsEnabled: true,
-                                    inputEnabled: true,
-                                    inputDateFormat: "%d/%m/%Y",
-                                    inputEditDateFormat: "%d/%m/%Y"
-                                },
-
-                                title: {
-                                    text: 'Reports by date'
-                                },
-
-                                xAxis: {
-                                    type: 'datetime',
-                                    dateTimeLabelFormats: { // don't display the dummy year
-                                        month: '%m/%Y',
-                                        year: '%Y'
-                                    }
-                                },
-
-                                series: [{
-                                    name: 'Reports',
-                                    data: daysJson,
-                                    tooltip: {
-                                        valueDecimals: 0
-                                    }
-                                }]
-
-                            });*/
                         });
                 }
                 (function() {

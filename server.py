@@ -311,6 +311,10 @@ def graph(channelId):
     edges = []
     labels = {}
     days = {}
+    dayMember = {}
+    for author in count:
+        dayMember[author] = {}
+
     for i in range(1, len(messages)):
         # graph
         key = (messages[i]['author_id'],messages[i-1]['author_id'])
@@ -320,18 +324,23 @@ def graph(channelId):
             labels[key] = 1
         # time
         timestamp = messages[i]['timestamp']
-        # timeKey = timestamp.strftime('%Y/%m/%d')
         d = datetime.date(timestamp.year, timestamp.month, timestamp.day)
         timeKey = calendar.timegm(d.timetuple())
-        #timeKey = int(time.mktime(timestamp.timetuple()))
+        member = messages[i]['author_id']
+        if (timeKey in dayMember[member]):
+            dayMember[member][timeKey] += 1
+        else:
+            dayMember[member][timeKey] = 1
         if (timeKey in days):
             days[timeKey] += 1
         else:
             days[timeKey] = 1
-    dayList = []
-    daysSorted = sorted(days)
-    for day in daysSorted:
-        dayList.append([day*1000, days[day]])
+    dayList = {}
+    for member in dayMember:
+        dayList[member] = []
+        daysSorted = sorted(dayMember[member])
+        for day in daysSorted:
+            dayList[member].append([day*1000, dayMember[member][day]])
 
 
 
