@@ -17,13 +17,47 @@ A message has the following characteristics:
 * avatar : the user's avatar hash
 
 ## 3. Planification, répartition du travail
+**05.05**
+* Technology selection
+* Design Choices
+* Start programming
+
+**12.05**
+* Web application logic
+* Creation of various roads
+* Creating the database structure
+
+**19.05**
+* Implementation of the communication mechanism (OAuth2) with Discord
+* Creating the message retrieval mechanism
+* Creating algorithms for message analysis
+
+**26.05**
+* Implementation of graphs and visualization of results
+* Bug fix
+ 
+**02.06**
+* Documentation
+* Bug fix
+
+We have both worked on the application developpement. Vincent create the network part (logic and vizalisation) and Kewin the OAuth2 authentification and graph part. 
 
 ## 4. Fonctionnalités / cas d’utilisation
+The user can:
+* Connect its account Discord to the application 
+* get back a number of message defines in a specific channel.
+* visualize (table, network, graph) the interactions between the diverse members of his channels.
 
-## 5. Techniques, algorithmes et outils utilisés
+
+## 5. Techniques, algorithmes et outils utilisés
+We have created an algorithm allowing us to retrieve the responses of the various messages in order to know who communicates with whom.
+
+We also implemented a word count algorithm to know the most used word for each conversation. This word count remove two specific list of stop word for the english and french languages.
+
+Regarding the tool, we used a mySQL database to store messages. GitHub for the versionning of the project. Python as programmation language. Flask as web framework for our application. Jinja2 as template engine for our web pages. The discord API in order to interact with Discord. Viz.js for rendering the network and graph.
 
 ## 6. Conclusion
-
+This project was very interesting. He gave us the opportunity to use the Discord API with which we were not familiar. For Vincent it was also an opportunity to use the Flask framework for the first time. We had to face some difficulty like not being able to retrieve all the messages at once. But we were able to set up a mechanism to bypass this problem. We are satisfied with our result.
 
 
 
