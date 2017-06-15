@@ -25,7 +25,7 @@ def getEnglishStopsWords():
                         'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more',
                         'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so',
                         'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now']
-    stopword_list = [word.decode('utf8') for word in raw_stopword_list]
+    stopword_list = [word for word in raw_stopword_list]
     return stopword_list
 
 def getFrenchStopsWords():
@@ -89,5 +89,5 @@ def getFrenchStopsWords():
                          "vingt-six", "vingt-trois", "vis-à-vis", "voici", "voilà", "vos", "votre", "vous", "w", "x",
                          "y", "z", "zéro", "à", "ç'", "ça", "ès", "étaient", "étais", "était", "étant", "étiez",
                          "étions", "été", "étée", "étées", "étés", "êtes", "être", "ô"]
-    stopword_list = [word.decode('utf8') for word in raw_stopword_list]
+    stopword_list = [word for word in raw_stopword_list]
     return stopword_list

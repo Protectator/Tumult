@@ -320,6 +320,8 @@ def graph(channelId):
     contentMessages = {}
     days = {}
     dayMember = {}
+    mostWord = {}
+
     for author in count:
         dayMember[author] = {}
 
@@ -328,7 +330,7 @@ def graph(channelId):
         key = (messages[i]['author_id'],messages[i-1]['author_id'])
         if key in labels:
             labels[key] += 1
-            contentMessages[key]+= messages[i]['content']
+            contentMessages[key]+= (" \n " + messages[i]['content'])
         else:
             labels[key] = 1
             contentMessages[key] = messages[i]['content']
@@ -359,6 +361,10 @@ def graph(channelId):
         lst = [(value, key) for key, value in word_counts.items()]
         lst.sort(reverse=True)
 
+        if len(lst) > 0:
+            mostWord[contentMessage] = lst[0]
+        else:
+            mostWord[contentMessage] = ''
 
 
 
@@ -376,7 +382,7 @@ def graph(channelId):
             'from': label[0],
             'to': label[1],
             'arrows': 'to',
-            'label' : 'test',
+            'label' : mostWord[label][1] if (len(mostWord[label]) >= 2) else '',
             'value': labels[label]
         }
         edges.append(edge)
