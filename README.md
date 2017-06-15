@@ -1,9 +1,10 @@
 # Tumult
 
 ## 1. Contexte et objectifs du projet
-**Tumult** shows statistics about comments Discord messages.
+**Tumult** shows statistics about comments Discord messages. (e.g. Who answers who, number of messages between people,...)
 
 ## 2. Données (sources, quantité, évtl. pré-traitement, description)
+Datasource: your own discord account. The quantity can therefore vary depending on the number of channel, messages related to your account.
 
 ## 3. Planification, répartition du travail
 
