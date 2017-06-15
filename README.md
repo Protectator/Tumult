@@ -40,7 +40,7 @@ A message has the following characteristics:
 * Documentation
 * Bug fix
 
-We have both worked on the application developpement. Vincent create the network part (logic and vizalisation) and Kewin the OAuth2 authentification and graph part. 
+We have both worked on the application developpement. Vincent create the network part and Kewin the OAuth2 authentification and graph part. 
 
 ## 4. Fonctionnalités / cas d’utilisation
 The user can:
