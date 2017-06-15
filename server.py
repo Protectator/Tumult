@@ -7,16 +7,23 @@ import calendar
 import os
 
 import datetime
+import utils
+
+import re
+from collections import Counter
 import requests
 import time
 import random
 import colorsys
+from nltk.corpus import stopwords
 
 from builtins import int
 
 from mysql import MySQL
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, abort, current_app
 from requests_oauthlib import OAuth2Session
+
+from utils import getFrenchStopsWords
 
 OAUTH2_CLIENT_ID = '299915176260403200'
 OAUTH2_CLIENT_SECRET = 'du0WfmpyPjIZlDM-DqjM9eJdPL2Igcti'
@@ -310,6 +317,7 @@ def graph(channelId):
     #[{from: 1, to: 3, value: 3},..]
     edges = []
     labels = {}
+    contentMessages = {}
     days = {}
     dayMember = {}
     for author in count:
@@ -320,8 +328,10 @@ def graph(channelId):
         key = (messages[i]['author_id'],messages[i-1]['author_id'])
         if key in labels:
             labels[key] += 1
+            contentMessages[key]+= messages[i]['content']
         else:
             labels[key] = 1
+            contentMessages[key] = messages[i]['content']
         # time
         timestamp = messages[i]['timestamp']
         d = datetime.date(timestamp.year, timestamp.month, timestamp.day)
@@ -335,6 +345,23 @@ def graph(channelId):
             days[timeKey] += 1
         else:
             days[timeKey] = 1
+
+    # --- WORD COUNT ---
+    for contentMessage in contentMessages:
+        msg = contentMessages[contentMessage]
+        words = msg.split()
+        filteredEN_words = [word for word in words if word not in stopwords.words('english')]
+        filteredFR_words = [word for word in filteredEN_words if word not in getFrenchStopsWords()]
+
+        word_counts = Counter(filteredFR_words)
+        num_words = sum(word_counts.values())
+
+        lst = [(value, key) for key, value in word_counts.items()]
+        lst.sort(reverse=True)
+
+
+
+
     dayList = {}
     for member in dayMember:
         dayList[member] = []
@@ -349,6 +376,7 @@ def graph(channelId):
             'from': label[0],
             'to': label[1],
             'arrows': 'to',
+            'label' : 'test',
             'value': labels[label]
         }
         edges.append(edge)
