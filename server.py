@@ -23,7 +23,7 @@ from mysql import MySQL
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, abort, current_app
 from requests_oauthlib import OAuth2Session
 
-from utils import getFrenchStopsWords
+from utils import getFrenchStopsWords, getEnglishStopsWords
 
 OAUTH2_CLIENT_ID = '299915176260403200'
 OAUTH2_CLIENT_SECRET = 'du0WfmpyPjIZlDM-DqjM9eJdPL2Igcti'
@@ -350,7 +350,7 @@ def graph(channelId):
     for contentMessage in contentMessages:
         msg = contentMessages[contentMessage]
         words = msg.split()
-        filteredEN_words = [word for word in words if word not in stopwords.words('english')]
+        filteredEN_words = [word for word in words if word not in getEnglishStopsWords()]
         filteredFR_words = [word for word in filteredEN_words if word not in getFrenchStopsWords()]
 
         word_counts = Counter(filteredFR_words)
