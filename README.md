@@ -1,5 +1,7 @@
 # Tumult
 
+**Tumult** is a webapp that lets you visualize your conversations on Discord.
+
 ### Requirements
 
 - [Python 3](https://www.python.org/)
