@@ -17,6 +17,10 @@ In the root directory of the project, run
 
 Run `tumult.py` with python 3, typically : `python3 tumult.py`
 
+### Disclaimer
+
+The project is **not** intended to be run on a public server due to security risks. It's intended for private use on your own machine. It is not recommended not expose the port publicly.
+
 ## 1. Project context and objectives
 **Tumult** was created to better understand the various interactions that one can have with the members of his **Discord** community. Discord is a freeware proprietary VoIP application designed for gaming communities. Discord runs on Microsoft Windows, macOS, Android, iOS, Linux, and in a web browser. As of May 2017, Discord has over 45 million users. Is like a teamspeak/skype fusion. **Tumult** shows statistics about Discord messages in servers and channels you're in. (e.g. Who answers who, number of messages between people,...)
 
