@@ -26,7 +26,7 @@ The project is **not** intended to be run on a public server due to security ris
 
 ## 2. Data
 ### Source
-The Discord servers of the user, and the servers he're into. After asking to connect to the user's account, **Tumult** will allow him to aggreagate in real time messages from channels. Tumult communicates with the Discord API in two ways :
+The Discord servers of the user, and the servers he's into. After asking to connect to the user's account, **Tumult** will allow him to aggreagate in real time messages from channels. Tumult communicates with the Discord API in two ways :
 - Using the usual token recieved from the Discord's OAuth connection window : This lets Tumult know your account, avatar etc. However, by using the API that way, Tumult wouldn't be able to read messages from channels, and thus be unable to function entirely.
 - Using a usertoken provided by the user : Complementary to the OAuth token, Tumult requires a usertoken in order to read messages from the user's servers and channels. It could also have been possible to register Tumult as a "Bot account" at Discord API, but this would have meant that Tumult only works on the servers the user *administrates*, which  reduces the target population by a lot.
 
@@ -121,4 +121,4 @@ The frontend part is composed of a few popular libs :
 
 ## 6. Conclusion
 
-This project was very interesting. He gave us the opportunity to use the Discord API with which we were not familiar. For Vincent it was also an opportunity to use the Flask framework for the first time. We had to face some difficulty like not being able to retrieve all the messages at once. But we were able to set up a mechanism to bypass this problem. We are satisfied with our result.
+This project was very interesting. It gave us the opportunity to use the Discord API with which we were not familiar. For Vincent it was also an opportunity to use the Flask framework for the first time. We had to face some difficulty like not being able to retrieve all the messages at once. But we were able to set up a mechanism to bypass this problem. We are satisfied with our result.
